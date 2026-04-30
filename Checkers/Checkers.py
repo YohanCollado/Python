@@ -15,6 +15,8 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
                text="Reset", 
                font=("Ariel", 15)).grid(row=0, column=1) # button to reset game, need to add command after
         
+        self.pieces = set()
+        self.selected_piece = None
         self.board() # this is what draws the board, without this the window is just blank
         self.image_piece()
         self.set_piece()
@@ -51,6 +53,8 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
                     fill=color, 
                     outline=color)
                 
+                self.canvas.bind("<Button-1>", self.move_piece)
+                
     def image_piece(self):    
         
         size = 80
@@ -69,7 +73,10 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         x = column * square_size + square_size // 2
         y = row *square_size + square_size // 2
 
-        self.canvas.create_image(x, y, image=image)
+        piece_id = self.canvas.create_image(x, y, image=image)
+
+        self.pieces.add(piece_id)
+
 
     def set_piece(self): 
         for row in range(3):
@@ -80,6 +87,40 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             for column in range(8):
                 if (row + column) % 2 == 1:
                     self.draw_piece(row, column, self.black_piece)
+    
+
+    def move_piece(self, event):
+        row = event.y // 80
+        col = event.x // 80
+
+        clicked = self.canvas.find_closest(event.x, event.y)
+
+        if not clicked:
+            return
+        
+        clicked_id = clicked[0]
+
+        if self.selected_piece is None:
+            if clicked_id in self.pieces:
+                self.selected_piece = clicked_id
+                print(f"Selected piece at row {row}, col {col}")
+        else:
+            x = col * 80 * 40
+            y = row * 80 * 40
+
+            self.canvas.coords(self.selected_piece, x, y)
+
+            print(f"Moved piece to row {row}, col {col}")
+            
+            self.selected_piece = None
+
+
+    
+
+
+
+
+
 
 
 
