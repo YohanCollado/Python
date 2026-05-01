@@ -13,13 +13,16 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
 
         Button(top, 
                text="Reset", 
-               font=("Ariel", 15)).grid(row=0, column=1) # button to reset game, need to add command after
+               font=("Ariel", 15), command=self.reset).grid(row=0, column=1) # button to reset game, need to add command after
         
         self.pieces = set()
         self.selected_piece = None
+        self.piece_position = {}
+
         self.board() # this is what draws the board, without this the window is just blank
         self.image_piece()
         self.set_piece()
+        
 
     def board(self): # method to make board
         rows = 8 
@@ -76,17 +79,24 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         piece_id = self.canvas.create_image(x, y, image=image)
 
         self.pieces.add(piece_id)
+        self.piece_position[piece_id] = (row, column)
+
+        return piece_id
 
 
     def set_piece(self): 
+        self.board_state = [[None for _ in range(8)] for _ in range(8)]
+
         for row in range(3):
             for column in range(8):
                 if (row + column) % 2 == 1:
                     self.draw_piece(row, column, self.red_piece)
+                    self.board_state[row][column] = "R"
         for row in range(5, 8):
             for column in range(8):
                 if (row + column) % 2 == 1:
                     self.draw_piece(row, column, self.black_piece)
+                    self.board_state[row][column] = "B"
     
 
     def move_piece(self, event):
@@ -94,7 +104,7 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         col = event.x // 80
 
         clicked = self.canvas.find_closest(event.x, event.y)
-
+                   
         if not clicked:
             return
         
@@ -103,19 +113,77 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         if self.selected_piece is None:
             if clicked_id in self.pieces:
                 self.selected_piece = clicked_id
-                print(f"Selected piece at row {row}, col {col}")
-        else:
-            x = col * 80 * 40
-            y = row * 80 * 40
+                print("Piece selected")
+            return
+
+        old_row, old_col = self.piece_position[self.selected_piece]
+        piece = self.board_state[old_row][old_col]
+
+        
+
+        if self.is_valid_move(piece, old_row, old_col, row, col):
+            x = col * 80 + 40
+            y = row * 80 + 40
+        
 
             self.canvas.coords(self.selected_piece, x, y)
 
-            print(f"Moved piece to row {row}, col {col}")
+            self.board_state[old_row][old_col] = None
+            self.board_state[row][col] = piece
+            self.piece_position[self.selected_piece] = (row, col)
+
+
+
+            print("Valid Move")
+        else:
+            print("Invalid Move")
+            
             
             self.selected_piece = None
+        
+
+
+    def reset(self):
+        for piece_id in self.pieces:
+            self.canvas.delete(piece_id)
+
+        self.pieces.clear()
+        self.selected_piece = None
+        
+        self.set_piece()
+
+        print("Game was reset")
+
+        
+    def is_valid_move(self, piece, old_row, old_col, new_row, new_col):
+
+        if new_row < 0 or new_row >= 8 or new_col < 0 or new_col >= 8:
+            return False
+
+        if self.board_state[new_row][new_col] is not None:
+            return False
+
+        if (new_row + new_col) % 2 == 0:
+            return False
+        
+        row_difference = new_row - old_row
+        column_difference = abs(new_col - old_col)
+
+        if piece == "R":
+            return row_difference == 1 and column_difference == 1
+        
+        if piece == "B":
+            return row_difference == -1 and column_difference == 1
+        
+        return False
+
+    #def eat(self):
+    #def double_eat(self):
+    
 
 
     
+
 
 
 
