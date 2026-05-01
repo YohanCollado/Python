@@ -114,7 +114,11 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             if clicked_id in self.pieces:
                 self.selected_piece = clicked_id
                 print("Piece selected")
-            return
+            return 
+        if clicked_id in self.pieces:
+            self.selected_piece = clicked_id
+            print("Piece changed")
+            return 
 
         old_row, old_col = self.piece_position[self.selected_piece]
         piece = self.board_state[old_row][old_col]
@@ -122,8 +126,11 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         
 
         if self.is_valid_move(piece, old_row, old_col, row, col):
+
             x = col * 80 + 40
             y = row * 80 + 40
+
+            print("Selected piece moved")
         
 
             self.canvas.coords(self.selected_piece, x, y)
@@ -132,12 +139,6 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             self.board_state[row][col] = piece
             self.piece_position[self.selected_piece] = (row, col)
 
-
-
-            print("Valid Move")
-        else:
-            print("Invalid Move")
-            
             
             self.selected_piece = None
         
@@ -176,9 +177,17 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             return row_difference == -1 and column_difference == 1
         
         return False
+    
+
+    #def remove_piece(self):
+       
 
     #def eat(self):
     #def double_eat(self):
+    #def promote(self):
+    #def crown_eat(self):
+    #def crown_double_eat(self):
+
     
 
 
