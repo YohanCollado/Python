@@ -23,6 +23,7 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         self.image_piece()
         self.set_piece()
         
+        
 
     def board(self): # method to make board
         rows = 8 
@@ -65,11 +66,20 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
         red = Image.open("Checkers/Images/red.png")
         black = Image.open("Checkers/Images/black.png")
 
+        red_crown = Image.open("Checkers/Images/redCrown.png")
+        black_crown = Image.open("Checkers/Images/blackCrown.png")
+
         red = red.resize((size, size))
         black = black.resize((size, size))
+        
+        red_crown = red_crown.resize((size, size))
+        black_crown = black_crown.resize((size, size))
 
         self.red_piece = ImageTk.PhotoImage(red)
         self.black_piece = ImageTk.PhotoImage(black)
+
+        self.red_crown_piece = ImageTk.PhotoImage(red_crown)
+        self.black_crown_piece = ImageTk.PhotoImage(black_crown)
 
     def draw_piece(self, row, column, image):
         square_size = 80
@@ -139,7 +149,8 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             self.board_state[row][col] = piece
             self.piece_position[self.selected_piece] = (row, col)
 
-            
+            self.is_crown()
+
             self.selected_piece = None
         
 
@@ -177,29 +188,63 @@ class Checkers(Tk): # creating a class called checkers that inherets from TK
             return row_difference == -1 and column_difference == 1
         
         return False
-    
 
-    #def remove_piece(self):
-       
+
+    def is_crown(self):
+
+        if self.selected_piece is None:
+            return 
+        position = self.piece_position.get(self.selected_piece)
+        if position is None:
+            return
+        
+        row = position
+        col = position
+
+        piece = self.board_state[row][col]
+
+        if piece == "R" and row == 7:
+            #remove old piece image
+            old_id = self.selected_piece
+            self.canvas.delete(old_id)
+            self.pieces.discard(old_id)
+            self.piece_position.pop(old_id, None)
+
+            self.board_state[row][col] = "RC"
+            new_id = self.draw_piece(row, col, self.red_crown_piece)
+
+            self.selected_piece = new_id
+            print(f"Red Crown was set at position {row}, {col}")
+
+        elif piece == "B" and row == 0:
+            old_id = self.selected_piece
+            self.canvas.delete(old_id)
+            self.pieces.discard(old_id)
+            self.piece_position.pop(old_id, None)
+
+            self.board_state[row][col] = "BC"
+            new_id = self.draw_piece(row, col, self.black_crown_piece)
+
+            self.selected_piece = new_id
+            print(f"Black Crown was set at position {row}, {col}")
+        
+        #if self.board_state[row][col] == "R" and row == 7:
+         #   self.board_state[row][col] = "RC"
+          #  self.draw_piece(row, col, self.red_crown_piece)
+           # print(f"Red crown was set at position {row}, {col}")
+        #elif self.board_state[row][col] == "B" and row == 0:
+         #   self.board_state[row][col] = "BC"
+          #  self.draw_piece(row, col, self.black_crown_piece)
+           # print(f"Black Crown was set at position {row}, {col}")
+        
+
 
     #def eat(self):
-    #def double_eat(self):
+    #def multiple_eat(self):
     #def promote(self):
+    #def move_crown(self):
     #def crown_eat(self):
-    #def crown_double_eat(self):
-
-    
-
-
-    
-
-
-
-
-
-
-
-
+    #def crown_multiple_eat(self):
 
 if __name__ == "__main__": # makes code run
     app = Checkers() # creates window, triggers, __init__
